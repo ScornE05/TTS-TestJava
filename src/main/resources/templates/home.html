@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Trang chủ</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="jumbotron py-5">
+        <h1 class="display-4">Chào mừng đến với Hệ thống Quản lý Nhân viên</h1>
+        <p class="lead">Hệ thống quản lý thông tin nhân viên, phòng ban, cơ sở và ngành học.</p>
+        <hr class="my-4">
+        <p>Sử dụng hệ thống để quản lý dữ liệu một cách hiệu quả và tiện lợi.</p>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-4x text-primary mb-3"></i>
+                    <h5 class="card-title">Quản lý Nhân viên</h5>
+                    <p class="card-text">Quản lý thông tin nhân viên trong hệ thống.</p>
+                    <a th:href="@{/web/staffs}" class="btn btn-primary">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-building fa-4x text-success mb-3"></i>
+                    <h5 class="card-title">Quản lý Phòng ban</h5>
+                    <p class="card-text">Quản lý thông tin các phòng ban trong tổ chức.</p>
+                    <a th:href="@{/web/departments}" class="btn btn-success">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-city fa-4x text-info mb-3"></i>
+                    <h5 class="card-title">Quản lý Cơ sở</h5>
+                    <p class="card-text">Quản lý thông tin các cơ sở vật chất.</p>
+                    <a th:href="@{/web/facilities}" class="btn btn-info">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-graduation-cap fa-4x text-warning mb-3"></i>
+                    <h5 class="card-title">Quản lý Ngành học</h5>
+                    <p class="card-text">Quản lý thông tin các ngành học.</p>
+                    <a th:href="@{/web/majors}" class="btn btn-warning">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Thống kê hệ thống</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Hoạt động gần đây</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-user-plus text-success me-2"></i> Thêm nhân viên mới</span>
+                            <span class="badge bg-primary rounded-pill">Hôm nay</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-edit text-warning me-2"></i> Cập nhật thông tin phòng ban</span>
+                            <span class="badge bg-primary rounded-pill">Hôm qua</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-trash text-danger me-2"></i> Xóa ngành học</span>
+                            <span class="badge bg-primary rounded-pill">3 ngày trước</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-plus-circle text-info me-2"></i> Thêm cơ sở mới</span>
+                            <span class="badge bg-primary rounded-pill">1 tuần trước</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Nhân viên', 'Phòng ban', 'Cơ sở', 'Ngành học'],
+                    datasets: [{
+                        label: 'Số lượng',
+                        data: [12, 19, 3, 5],
+                        backgroundColor: [
+                            'rgba(13, 110, 253, 0.7)',
+                            'rgba(25, 135, 84, 0.7)',
+                            'rgba(13, 202, 240, 0.7)',
+                            'rgba(255, 193, 7, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(13, 110, 253, 1)',
+                            'rgba(25, 135, 84, 1)',
+                            'rgba(13, 202, 240,, 1)',
+                            'rgba(255, 193, 7, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

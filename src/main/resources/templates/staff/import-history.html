@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Lịch sử import</title>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-history"></i> Lịch sử import</h2>
+        <a th:href="@{/web/excel/import-form}" class="btn btn-primary">
+            <i class="fas fa-file-import"></i> Import nhân viên
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="historyTable" class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên file</th>
+                        <th>Tổng số bản ghi</th>
+                        <th>Thành công</th>
+                        <th>Thất bại</th>
+                        <th>Thời gian import</th>
+                        <th>Người import</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${histories.empty}">
+                        <td colspan="8" class="text-center">Chưa có dữ liệu</td>
+                    </tr>
+                    <tr th:each="history, stat : ${histories}">
+                        <td th:text="${stat.count}">1</td>
+                        <td th:text="${history.fileName}">staff.xlsx</td>
+                        <td th:text="${history.totalRecords}">10</td>
+                        <td>
+                            <span class="badge bg-success" th:text="${history.successRecords}">8</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-danger" th:text="${history.failedRecords}">2</span>
+                        </td>
+                        <td th:text="${#dates.format(new java.util.Date(history.createdDate), 'dd/MM/yyyy HH:mm:ss')}">
+                            01/01/2023 12:00:00
+                        </td>
+                        <td th:text="${history.importedBy}">Admin</td>
+                        <td>
+                            <a th:href="@{/web/excel/import-history/{id}(id=${history.id})}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i> Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <!-- DataTables JS -->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#historyTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json'
+                },
+                "order": [[ 5, "desc" ]],
+                "pageLength": 10
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

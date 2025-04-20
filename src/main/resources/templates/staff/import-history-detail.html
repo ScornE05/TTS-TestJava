@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Chi tiết lịch sử import</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-info-circle"></i> Thông tin lịch sử import
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th style="width: 30%;">Tên file</th>
+                            <td th:text="${history.fileName}">staff.xlsx</td>
+                        </tr>
+                        <tr>
+                            <th>Tổng số bản ghi</th>
+                            <td th:text="${history.totalRecords}">10</td>
+                        </tr>
+                        <tr>
+                            <th>Số bản ghi thành công</th>
+                            <td>
+                                <span class="badge bg-success" th:text="${history.successRecords}">8</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Số bản ghi thất bại</th>
+                            <td>
+                                <span class="badge bg-danger" th:text="${history.failedRecords}">2</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Thời gian import</th>
+                            <td th:text="${#dates.format(new java.util.Date(history.createdDate), 'dd/MM/yyyy HH:mm:ss')}">
+                                01/01/2023 12:00:00
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Người import</th>
+                            <td th:text="${history.importedBy}">Admin</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4" th:if="${history.successRecords > 0}">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-check-circle"></i> Danh sách import thành công
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                    <pre th:text="${history.successDetails}" style="white-space: pre-wrap; margin-bottom: 0;">
+                        Dòng 2: Import thành công nhân viên ST001 - John Wick
+                        Dòng 3: Import thành công nhân viên ST002 - Top1 Flo
+                    </pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4" th:if="${history.failedRecords > 0}">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-times-circle"></i> Danh sách import thất bại
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                    <pre th:text="${history.failureDetails}" style="white-space: pre-wrap; margin-bottom: 0;">
+                        Dòng 4: Lỗi - Mã nhân viên đã tồn tại: ST003
+                        Dòng 5: Lỗi - Email FE phải có định dạng @fe.edu.vn
+                    </pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4">
+        <a th:href="@{/web/excel/import-histories}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+</div>
+</body>
+</html>

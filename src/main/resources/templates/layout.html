@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ? ${title} + ' - Hệ thống Quản lý Nhân viên' : 'Hệ thống Quản lý Nhân viên'"></title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+
+    <!-- Additional CSS -->
+    <th:block layout:fragment="css"></th:block>
+</head>
+<body>
+<!-- Header -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">Quản lý Nhân viên</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}"><i class="fas fa-home"></i> Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/web/staffs}"><i class="fas fa-users"></i> Nhân viên</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/web/departments}"><i class="fas fa-building"></i> Phòng ban</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/web/facilities}"><i class="fas fa-city"></i> Cơ sở</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/web/majors}"><i class="fas fa-graduation-cap"></i> Ngành học</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i> Tài khoản
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{/web/profile}"><i class="fas fa-id-card"></i> Hồ sơ</a></li>
+                        <li><a class="dropdown-item" th:href="@{/web/change-password}"><i class="fas fa-key"></i> Đổi mật khẩu</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Alert Messages -->
+<div class="container mt-3">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show">
+        <i class="fas fa-exclamation-triangle"></i> <span th:text="${warning}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${info}" class="alert alert-info alert-dismissible fade show">
+        <i class="fas fa-info-circle"></i> <span th:text="${info}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="container mt-4">
+    <div layout:fragment="content"></div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-light text-center text-lg-start mt-5 py-3">
+    <div class="container">
+        <div class="text-center">
+            &copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2023</span> - Hệ thống Quản lý Nhân viên
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Custom JS -->
+<script th:src="@{/js/script.js}"></script>
+
+<!-- Additional JavaScript -->
+<th:block layout:fragment="script"></th:block>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Import nhân viên</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-file-import"></i> Import nhân viên
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <div class="alert alert-info">
+                    <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Hướng dẫn import</h6>
+                    <ol class="mb-0">
+                        <li>Tải template import <a th:href="@{/web/excel/download-template}" class="alert-link">tại đây</a></li>
+                        <li>Điền thông tin nhân viên vào template</li>
+                        <li>Upload file template đã điền thông tin</li>
+                    </ol>
+                </div>
+            </div>
+
+            <form th:action="@{/web/excel/import-staffs}" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="file" class="form-label required">Chọn file Excel</label>
+                    <input type="file" class="form-control" id="file" name="file" required accept=".xlsx, .xls">
+                    <small class="form-text text-muted">Chỉ chấp nhận file Excel (.xlsx, .xls)</small>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <a th:href="@{/web/staffs}" class="btn btn-secondary me-2">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
