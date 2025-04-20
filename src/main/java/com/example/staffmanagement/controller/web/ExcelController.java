@@ -72,7 +72,6 @@ public class ExcelController {
 
     @PostMapping("/import-staffs")
     public String importStaffs(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
-        // Kiểm tra file
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Vui lòng chọn file để import");
             return "redirect:/web/excel/import-form";
@@ -116,7 +115,7 @@ public class ExcelController {
             redirectAttributes.addFlashAttribute("success",
                     "Import hoàn tất: " + successCount + " thành công, " + failCount + " thất bại");
 
-            return "redirect:/web/import-histories";
+            return "redirect:/web/excel/import-histories";
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi đọc file: " + e.getMessage());
             return "redirect:/web/excel/import-form";
