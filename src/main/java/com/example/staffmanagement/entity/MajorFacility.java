@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
-
+import jakarta.persistence.CascadeType;
 @Entity
 @Table(name = "major_facility")
 @Data
@@ -27,6 +27,6 @@ public class MajorFacility extends BaseEntity {
     @JoinColumn(name = "id_major")
     private Major major;
 
-    @OneToMany(mappedBy = "majorFacility")
+    @OneToMany(mappedBy = "majorFacility", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<StaffMajorFacility> staffMajorFacilities = new HashSet<>();
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
+import jakarta.persistence.CascadeType;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,6 +31,6 @@ public class DepartmentFacility extends BaseEntity {
     @JoinColumn(name = "id_staff")
     private Staff staff;
 
-    @OneToMany(mappedBy = "departmentFacility")
+    @OneToMany(mappedBy = "departmentFacility", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MajorFacility> majorFacilities = new HashSet<>();
 }

@@ -1,10 +1,17 @@
 package com.example.staffmanagement.service.impl;
 
 import com.example.staffmanagement.dto.StaffDTO;
+import com.example.staffmanagement.entity.DepartmentFacility;
+import com.example.staffmanagement.entity.MajorFacility;
 import com.example.staffmanagement.entity.Staff;
+import com.example.staffmanagement.entity.StaffMajorFacility;
 import com.example.staffmanagement.exception.ResourceNotFoundException;
+import com.example.staffmanagement.repository.DepartmentFacilityRepository;
+import com.example.staffmanagement.repository.MajorFacilityRepository;
+import com.example.staffmanagement.repository.StaffMajorFacilityRepository;
 import com.example.staffmanagement.repository.StaffRepository;
 import com.example.staffmanagement.service.StaffService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,10 +25,20 @@ import java.util.stream.Collectors;
 public class StaffServiceImpl implements StaffService {
 
     private final StaffRepository staffRepository;
+    private final StaffMajorFacilityRepository staffMajorFacilityRepository;
+    private final DepartmentFacilityRepository departmentFacilityRepository;
+    private final MajorFacilityRepository majorFacilityRepository;
 
     @Autowired
-    public StaffServiceImpl(StaffRepository staffRepository) {
+    public StaffServiceImpl(
+            StaffRepository staffRepository,
+            StaffMajorFacilityRepository staffMajorFacilityRepository,
+            DepartmentFacilityRepository departmentFacilityRepository,
+            MajorFacilityRepository majorFacilityRepository) {
         this.staffRepository = staffRepository;
+        this.staffMajorFacilityRepository = staffMajorFacilityRepository;
+        this.departmentFacilityRepository = departmentFacilityRepository;
+        this.majorFacilityRepository = majorFacilityRepository;
     }
 
     @Override
@@ -159,11 +176,36 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    @Transactional
     public void deleteStaff(UUID id) {
         Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên", "id", id));
 
-        // Xóa thực sự thay vì cập nhật trạng thái
+        // 1. Đầu tiên, xóa tất cả StaffMajorFacility liên quan đến nhân viên này
+        List<StaffMajorFacility> staffMajorFacilities = staffMajorFacilityRepository.findByStaff(staff);
+        staffMajorFacilityRepository.deleteAll(staffMajorFacilities);
+
+        // 2. Xóa các DepartmentFacility liên quan đến nhân viên này
+        List<DepartmentFacility> departmentFacilities = departmentFacilityRepository.findByStaff(staff);
+
+        for (DepartmentFacility df : departmentFacilities) {
+            // 2.1 Trước khi xóa DepartmentFacility, cần xóa MajorFacility liên quan
+            List<MajorFacility> majorFacilities = majorFacilityRepository.findByDepartmentFacility(df);
+
+            for (MajorFacility mf : majorFacilities) {
+                // 2.1.1 Xóa bất kỳ StaffMajorFacility nào liên quan đến MajorFacility này
+                List<StaffMajorFacility> relatedSMFs = staffMajorFacilityRepository.findByMajorFacility(mf);
+                staffMajorFacilityRepository.deleteAll(relatedSMFs);
+
+                // 2.1.2 Xóa MajorFacility
+                majorFacilityRepository.delete(mf);
+            }
+
+            // 2.2 Sau đó xóa DepartmentFacility
+            departmentFacilityRepository.delete(df);
+        }
+
+        // 3. Cuối cùng xóa Staff
         staffRepository.delete(staff);
     }
 
