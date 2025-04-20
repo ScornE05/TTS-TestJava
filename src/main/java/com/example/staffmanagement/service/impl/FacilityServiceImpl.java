@@ -94,10 +94,8 @@ public class FacilityServiceImpl implements FacilityService {
         Facility facility = facilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cơ sở", "id", id));
 
-        // Thay vì xóa, chỉ cần cập nhật trạng thái
-        facility.setStatus((byte) 0);
-        facility.setLastModifiedDate(Instant.now().toEpochMilli());
-        facilityRepository.save(facility);
+        // Xóa thực sự thay vì cập nhật trạng thái
+        facilityRepository.delete(facility);
     }
 
     @Override

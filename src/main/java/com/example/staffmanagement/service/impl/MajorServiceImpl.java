@@ -94,10 +94,7 @@ public class MajorServiceImpl implements MajorService {
         Major major = majorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ngành học", "id", id));
 
-        // Thay vì xóa, chỉ cần cập nhật trạng thái
-        major.setStatus((byte) 0);
-        major.setLastModifiedDate(Instant.now().toEpochMilli());
-        majorRepository.save(major);
+        majorRepository.delete(major);
     }
 
     @Override

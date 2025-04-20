@@ -163,10 +163,8 @@ public class StaffServiceImpl implements StaffService {
         Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên", "id", id));
 
-        // Thay vì xóa, chỉ cần cập nhật trạng thái
-        staff.setStatus((byte) 0);
-        staff.setLastModifiedDate(Instant.now().toEpochMilli());
-        staffRepository.save(staff);
+        // Xóa thực sự thay vì cập nhật trạng thái
+        staffRepository.delete(staff);
     }
 
     /**
