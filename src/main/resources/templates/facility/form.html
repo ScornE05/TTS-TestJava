@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${facility.id != null ? 'Cập nhật thông tin cơ sở' : 'Thêm mới cơ sở'}">Thêm mới cơ sở</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-city" th:if="${facility.id == null}"></i>
+                <i class="fas fa-edit" th:if="${facility.id != null}"></i>
+                <span th:text="${facility.id != null ? 'Cập nhật thông tin cơ sở' : 'Thêm mới cơ sở'}">Thêm mới cơ sở</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <form th:action="${facility.id != null ? '/web/facilities/edit/' + facility.id : '/web/facilities/add'}"
+                  th:object="${facility}"
+                  method="post">
+
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="mb-3 row">
+                    <label for="code" class="col-sm-3 col-form-label required">Mã cơ sở</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="code" th:field="*{code}"
+                               required maxlength="255" />
+                        <div class="text-danger" th:if="${#fields.hasErrors('code')}" th:errors="*{code}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="name" class="col-sm-3 col-form-label required">Tên cơ sở</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="name" th:field="*{name}"
+                               required maxlength="255" />
+                        <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="status" class="col-sm-3 col-form-label">Trạng thái</label>
+                    <div class="col-sm-9">
+                        <select class="form-select" id="status" th:field="*{status}">
+                            <option value="1">Hoạt động</option>
+                            <option value="0">Không hoạt động</option>
+                        </select>
+                        <div class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <a th:href="@{/web/facilities}" class="btn btn-secondary me-2">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Lưu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

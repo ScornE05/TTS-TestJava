@@ -65,30 +65,25 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public StaffDTO createStaff(StaffDTO staffDTO) {
-        // Tạo một UUID mới nếu không được cung cấp
+
         if (staffDTO.getId() == null) {
             staffDTO.setId(UUID.randomUUID());
         }
 
-        // Kiểm tra xem mã nhân viên đã tồn tại chưa
         if (isStaffCodeExists(staffDTO.getStaffCode())) {
             throw new IllegalArgumentException("Mã nhân viên đã tồn tại: " + staffDTO.getStaffCode());
         }
 
-        // Kiểm tra xem tài khoản FE đã tồn tại chưa
         if (staffDTO.getAccountFe() != null && isAccountFeExists(staffDTO.getAccountFe())) {
             throw new IllegalArgumentException("Tài khoản FE đã tồn tại: " + staffDTO.getAccountFe());
         }
 
-        // Kiểm tra xem tài khoản FPT đã tồn tại chưa
         if (staffDTO.getAccountFpt() != null && isAccountFptExists(staffDTO.getAccountFpt())) {
             throw new IllegalArgumentException("Tài khoản FPT đã tồn tại: " + staffDTO.getAccountFpt());
         }
 
-        // Kiểm tra các ràng buộc về định dạng email và độ dài
         validateStaffData(staffDTO);
 
-        // Thiết lập trạng thái và thời gian
         staffDTO.setStatus((byte) 1);
         long currentTime = Instant.now().toEpochMilli();
         staffDTO.setCreatedDate(currentTime);
@@ -99,9 +94,8 @@ public class StaffServiceImpl implements StaffService {
         return convertToDTO(staff);
     }
 
-    // Phương thức để xác thực dữ liệu nhân viên
     private void validateStaffData(StaffDTO staffDTO) {
-        // Kiểm tra độ dài của các trường
+
         if (staffDTO.getName() != null && staffDTO.getName().length() > 100) {
             throw new IllegalArgumentException("Tên nhân viên không được vượt quá 100 ký tự");
         }
@@ -144,27 +138,21 @@ public class StaffServiceImpl implements StaffService {
         Staff existingStaff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên", "id", id));
 
-        // Kiểm tra xem mã nhân viên đã tồn tại chưa (nếu đã thay đổi)
         if (!existingStaff.getStaffCode().equals(staffDTO.getStaffCode())
                 && isStaffCodeExists(staffDTO.getStaffCode())) {
             throw new IllegalArgumentException("Mã nhân viên đã tồn tại: " + staffDTO.getStaffCode());
         }
 
-        // Kiểm tra tài khoản FE (nếu đã thay đổi)
         if (staffDTO.getAccountFe() != null
                 && !staffDTO.getAccountFe().equals(existingStaff.getAccountFe())
                 && isAccountFeExists(staffDTO.getAccountFe())) {
             throw new IllegalArgumentException("Tài khoản FE đã tồn tại: " + staffDTO.getAccountFe());
         }
-
-        // Kiểm tra tài khoản FPT (nếu đã thay đổi)
         if (staffDTO.getAccountFpt() != null
                 && !staffDTO.getAccountFpt().equals(existingStaff.getAccountFpt())
                 && isAccountFptExists(staffDTO.getAccountFpt())) {
             throw new IllegalArgumentException("Tài khoản FPT đã tồn tại: " + staffDTO.getAccountFpt());
         }
-
-        // Cập nhật thông tin
         existingStaff.setName(staffDTO.getName());
         existingStaff.setStaffCode(staffDTO.getStaffCode());
         existingStaff.setAccountFe(staffDTO.getAccountFe());
@@ -180,43 +168,29 @@ public class StaffServiceImpl implements StaffService {
     public void deleteStaff(UUID id) {
         Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên", "id", id));
-
-        // 1. Đầu tiên, xóa tất cả StaffMajorFacility liên quan đến nhân viên này
         List<StaffMajorFacility> staffMajorFacilities = staffMajorFacilityRepository.findByStaff(staff);
         staffMajorFacilityRepository.deleteAll(staffMajorFacilities);
-
-        // 2. Xóa các DepartmentFacility liên quan đến nhân viên này
         List<DepartmentFacility> departmentFacilities = departmentFacilityRepository.findByStaff(staff);
 
         for (DepartmentFacility df : departmentFacilities) {
-            // 2.1 Trước khi xóa DepartmentFacility, cần xóa MajorFacility liên quan
             List<MajorFacility> majorFacilities = majorFacilityRepository.findByDepartmentFacility(df);
 
             for (MajorFacility mf : majorFacilities) {
-                // 2.1.1 Xóa bất kỳ StaffMajorFacility nào liên quan đến MajorFacility này
                 List<StaffMajorFacility> relatedSMFs = staffMajorFacilityRepository.findByMajorFacility(mf);
                 staffMajorFacilityRepository.deleteAll(relatedSMFs);
-
-                // 2.1.2 Xóa MajorFacility
                 majorFacilityRepository.delete(mf);
             }
 
-            // 2.2 Sau đó xóa DepartmentFacility
             departmentFacilityRepository.delete(df);
         }
 
-        // 3. Cuối cùng xóa Staff
         staffRepository.delete(staff);
     }
 
-    /**
-     * Đổi trạng thái nhân viên (hoạt động/không hoạt động)
-     */
     public StaffDTO toggleStaffStatus(UUID id) {
         Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên", "id", id));
 
-        // Đổi trạng thái từ 1 -> 0 hoặc từ 0 -> 1
         staff.setStatus(staff.getStatus() == 1 ? (byte) 0 : (byte) 1);
         staff.setLastModifiedDate(Instant.now().toEpochMilli());
 
@@ -239,14 +213,12 @@ public class StaffServiceImpl implements StaffService {
         return staffRepository.existsByAccountFpt(accountFpt);
     }
 
-    // Phương thức chuyển đổi từ Entity sang DTO
     private StaffDTO convertToDTO(Staff staff) {
         StaffDTO staffDTO = new StaffDTO();
         BeanUtils.copyProperties(staff, staffDTO);
         return staffDTO;
     }
 
-    // Phương thức chuyển đổi từ DTO sang Entity
     private Staff convertToEntity(StaffDTO staffDTO) {
         Staff staff = new Staff();
         BeanUtils.copyProperties(staffDTO, staff);

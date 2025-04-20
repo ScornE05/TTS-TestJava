@@ -66,17 +66,14 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional
     public DepartmentDTO createDepartment(DepartmentDTO departmentDTO) {
-        // Tạo một UUID mới nếu không được cung cấp
         if (departmentDTO.getId() == null) {
             departmentDTO.setId(UUID.randomUUID());
         }
 
-        // Kiểm tra xem mã phòng ban đã tồn tại chưa
         if (isDepartmentCodeExists(departmentDTO.getCode())) {
             throw new IllegalArgumentException("Mã phòng ban đã tồn tại: " + departmentDTO.getCode());
         }
 
-        // Thiết lập trạng thái và thời gian
         departmentDTO.setStatus((byte) 1);
         long currentTime = Instant.now().toEpochMilli();
         departmentDTO.setCreatedDate(currentTime);
@@ -92,18 +89,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     public DepartmentDTO updateDepartment(UUID id, DepartmentDTO departmentDTO) {
         Department existingDepartment = departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng ban", "id", id));
-
-        // Kiểm tra xem mã phòng ban đã tồn tại chưa (nếu đã thay đổi)
         if (!existingDepartment.getCode().equals(departmentDTO.getCode())
                 && isDepartmentCodeExists(departmentDTO.getCode())) {
             throw new IllegalArgumentException("Mã phòng ban đã tồn tại: " + departmentDTO.getCode());
         }
 
-        // Lưu giữ thông tin cũ để đồng bộ cập nhật
         String oldName = existingDepartment.getName();
         String oldCode = existingDepartment.getCode();
-
-        // Cập nhật thông tin
         existingDepartment.setName(departmentDTO.getName());
         existingDepartment.setCode(departmentDTO.getCode());
         existingDepartment.setStatus(departmentDTO.getStatus());
@@ -111,11 +103,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         Department updatedDepartment = departmentRepository.save(existingDepartment);
 
-        // Lấy danh sách DepartmentFacility liên quan và cập nhật đồng bộ (nếu cần)
         if (!oldName.equals(departmentDTO.getName()) || !oldCode.equals(departmentDTO.getCode())) {
             List<DepartmentFacility> relatedDeptFacilities = departmentFacilityRepository.findByDepartment(existingDepartment);
             if (!relatedDeptFacilities.isEmpty()) {
-                // Cập nhật thông tin liên quan
+
                 for (DepartmentFacility df : relatedDeptFacilities) {
                     df.setLastModifiedDate(Instant.now().toEpochMilli());
                     departmentFacilityRepository.save(df);
@@ -132,27 +123,20 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng ban", "id", id));
 
-        // Xóa các bản ghi liên quan theo thứ tự phân cấp để tránh lỗi ràng buộc khóa ngoại
         List<DepartmentFacility> deptFacilities = departmentFacilityRepository.findByDepartment(department);
 
         for (DepartmentFacility df : deptFacilities) {
-            // Xóa các MajorFacility liên quan
             List<MajorFacility> majorFacilities = majorFacilityRepository.findByDepartmentFacility(df);
 
             for (MajorFacility mf : majorFacilities) {
-                // Xóa các StaffMajorFacility liên quan
                 List<StaffMajorFacility> staffMajorFacilities = staffMajorFacilityRepository.findByMajorFacility(mf);
                 staffMajorFacilityRepository.deleteAll(staffMajorFacilities);
 
-                // Xóa MajorFacility
                 majorFacilityRepository.delete(mf);
             }
-
-            // Xóa DepartmentFacility
             departmentFacilityRepository.delete(df);
         }
 
-        // Cuối cùng xóa Department
         departmentRepository.delete(department);
     }
 
@@ -160,15 +144,12 @@ public class DepartmentServiceImpl implements DepartmentService {
     public boolean isDepartmentCodeExists(String code) {
         return departmentRepository.existsByCode(code);
     }
-
-    // Phương thức chuyển đổi từ Entity sang DTO
     private DepartmentDTO convertToDTO(Department department) {
         DepartmentDTO departmentDTO = new DepartmentDTO();
         BeanUtils.copyProperties(department, departmentDTO);
         return departmentDTO;
     }
 
-    // Phương thức chuyển đổi từ DTO sang Entity
     private Department convertToEntity(DepartmentDTO departmentDTO) {
         Department department = new Department();
         BeanUtils.copyProperties(departmentDTO, department);

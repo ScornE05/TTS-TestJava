@@ -73,30 +73,25 @@ public class MajorFacilityServiceImpl implements MajorFacilityService {
 
     @Override
     public MajorFacilityDTO createMajorFacility(MajorFacilityDTO majorFacilityDTO) {
-        // Tạo một UUID mới nếu không được cung cấp
         if (majorFacilityDTO.getId() == null) {
             majorFacilityDTO.setId(UUID.randomUUID());
         }
 
-        // Lấy các thực thể tham chiếu
         DepartmentFacility departmentFacility = departmentFacilityRepository.findById(majorFacilityDTO.getDepartmentFacilityId())
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng ban - Cơ sở", "id", majorFacilityDTO.getDepartmentFacilityId()));
 
         Major major = majorRepository.findById(majorFacilityDTO.getMajorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Ngành học", "id", majorFacilityDTO.getMajorId()));
 
-        // Kiểm tra xem cặp ngành học-cơ sở đã tồn tại chưa
         if (existsByDepartmentFacilityAndMajor(departmentFacility.getId(), major.getId())) {
             throw new IllegalArgumentException("Cặp ngành học-cơ sở đã tồn tại");
         }
 
-        // Thiết lập trạng thái và thời gian
         majorFacilityDTO.setStatus((byte) 1);
         long currentTime = Instant.now().toEpochMilli();
         majorFacilityDTO.setCreatedDate(currentTime);
         majorFacilityDTO.setLastModifiedDate(currentTime);
 
-        // Tạo mới thực thể
         MajorFacility majorFacility = new MajorFacility();
         majorFacility.setId(majorFacilityDTO.getId());
         majorFacility.setStatus(majorFacilityDTO.getStatus());
@@ -114,14 +109,12 @@ public class MajorFacilityServiceImpl implements MajorFacilityService {
         MajorFacility existingMajorFacility = majorFacilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ngành học - Cơ sở", "id", id));
 
-        // Lấy các thực thể tham chiếu mới
         DepartmentFacility departmentFacility = departmentFacilityRepository.findById(majorFacilityDTO.getDepartmentFacilityId())
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng ban - Cơ sở", "id", majorFacilityDTO.getDepartmentFacilityId()));
 
         Major major = majorRepository.findById(majorFacilityDTO.getMajorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Ngành học", "id", majorFacilityDTO.getMajorId()));
 
-        // Kiểm tra xem cặp ngành học-cơ sở đã tồn tại chưa (nếu đã thay đổi)
         boolean isDepartmentFacilityChanged = !existingMajorFacility.getDepartmentFacility().getId().equals(departmentFacility.getId());
         boolean isMajorChanged = !existingMajorFacility.getMajor().getId().equals(major.getId());
 
@@ -130,7 +123,6 @@ public class MajorFacilityServiceImpl implements MajorFacilityService {
             throw new IllegalArgumentException("Cặp ngành học-cơ sở đã tồn tại");
         }
 
-        // Cập nhật thông tin
         existingMajorFacility.setDepartmentFacility(departmentFacility);
         existingMajorFacility.setMajor(major);
         existingMajorFacility.setLastModifiedDate(Instant.now().toEpochMilli());
@@ -144,7 +136,6 @@ public class MajorFacilityServiceImpl implements MajorFacilityService {
         MajorFacility majorFacility = majorFacilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ngành học - Cơ sở", "id", id));
 
-        // Thay vì xóa, chỉ cần cập nhật trạng thái
         majorFacility.setStatus((byte) 0);
         majorFacility.setLastModifiedDate(Instant.now().toEpochMilli());
         majorFacilityRepository.save(majorFacility);
@@ -161,7 +152,6 @@ public class MajorFacilityServiceImpl implements MajorFacilityService {
         return majorFacilityRepository.existsByDepartmentFacilityAndMajor(departmentFacility, major);
     }
 
-    // Phương thức chuyển đổi từ Entity sang DTO
     private MajorFacilityDTO convertToDTO(MajorFacility majorFacility) {
         MajorFacilityDTO dto = new MajorFacilityDTO();
         dto.setId(majorFacility.getId());

@@ -89,7 +89,6 @@ public class DepartmentFacilityServiceImpl implements DepartmentFacilityService 
 
     @Override
     public DepartmentFacilityDTO createDepartmentFacility(DepartmentFacilityDTO departmentFacilityDTO) {
-        // Tạo một UUID mới nếu không được cung cấp
         if (departmentFacilityDTO.getId() == null) {
             departmentFacilityDTO.setId(UUID.randomUUID());
         }
@@ -103,19 +102,13 @@ public class DepartmentFacilityServiceImpl implements DepartmentFacilityService 
 
         Staff staff = staffRepository.findById(departmentFacilityDTO.getStaffId())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên", "id", departmentFacilityDTO.getStaffId()));
-
-        // Kiểm tra xem cặp phòng ban-cơ sở đã tồn tại chưa
         if (existsByDepartmentAndFacility(department.getId(), facility.getId())) {
             throw new IllegalArgumentException("Cặp phòng ban-cơ sở đã tồn tại");
         }
-
-        // Thiết lập trạng thái và thời gian
         departmentFacilityDTO.setStatus((byte) 1);
         long currentTime = Instant.now().toEpochMilli();
         departmentFacilityDTO.setCreatedDate(currentTime);
         departmentFacilityDTO.setLastModifiedDate(currentTime);
-
-        // Tạo mới thực thể
         DepartmentFacility departmentFacility = new DepartmentFacility();
         departmentFacility.setId(departmentFacilityDTO.getId());
         departmentFacility.setStatus(departmentFacilityDTO.getStatus());
@@ -134,7 +127,6 @@ public class DepartmentFacilityServiceImpl implements DepartmentFacilityService 
         DepartmentFacility existingDepartmentFacility = departmentFacilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng ban - Cơ sở", "id", id));
 
-        // Lấy các thực thể tham chiếu mới
         Department department = departmentRepository.findById(departmentFacilityDTO.getDepartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng ban", "id", departmentFacilityDTO.getDepartmentId()));
 
@@ -144,7 +136,6 @@ public class DepartmentFacilityServiceImpl implements DepartmentFacilityService 
         Staff staff = staffRepository.findById(departmentFacilityDTO.getStaffId())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên", "id", departmentFacilityDTO.getStaffId()));
 
-        // Kiểm tra xem cặp phòng ban-cơ sở đã tồn tại chưa (nếu đã thay đổi)
         boolean isDepartmentChanged = !existingDepartmentFacility.getDepartment().getId().equals(department.getId());
         boolean isFacilityChanged = !existingDepartmentFacility.getFacility().getId().equals(facility.getId());
 
@@ -153,7 +144,6 @@ public class DepartmentFacilityServiceImpl implements DepartmentFacilityService 
             throw new IllegalArgumentException("Cặp phòng ban-cơ sở đã tồn tại");
         }
 
-        // Cập nhật thông tin
         existingDepartmentFacility.setDepartment(department);
         existingDepartmentFacility.setFacility(facility);
         existingDepartmentFacility.setStaff(staff);
@@ -168,7 +158,6 @@ public class DepartmentFacilityServiceImpl implements DepartmentFacilityService 
         DepartmentFacility departmentFacility = departmentFacilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng ban - Cơ sở", "id", id));
 
-        // Thay vì xóa, chỉ cần cập nhật trạng thái
         departmentFacility.setStatus((byte) 0);
         departmentFacility.setLastModifiedDate(Instant.now().toEpochMilli());
         departmentFacilityRepository.save(departmentFacility);
@@ -185,7 +174,6 @@ public class DepartmentFacilityServiceImpl implements DepartmentFacilityService 
         return departmentFacilityRepository.existsByDepartmentAndFacility(department, facility);
     }
 
-    // Phương thức chuyển đổi từ Entity sang DTO
     private DepartmentFacilityDTO convertToDTO(DepartmentFacility departmentFacility) {
         DepartmentFacilityDTO dto = new DepartmentFacilityDTO();
         dto.setId(departmentFacility.getId());

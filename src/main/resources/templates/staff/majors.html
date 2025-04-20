@@ -147,18 +147,15 @@
 <th:block layout:fragment="script">
     <script>
         $(document).ready(function() {
-            // Xử lý khi chọn cơ sở
             $('#facilityId').on('change', function() {
                 const facilityId = $(this).val();
                 const departmentSelect = $('#departmentId');
                 const majorSelect = $('#majorId');
 
-                // Reset các select box
                 departmentSelect.html('<option value="">-- Chọn bộ môn --</option>').prop('disabled', true);
                 majorSelect.html('<option value="">-- Chọn chuyên ngành --</option>').prop('disabled', true);
 
                 if (facilityId) {
-                    // Lấy danh sách bộ môn theo cơ sở
                     $.ajax({
                         url: '/web/staff-majors/departments/' + facilityId,
                         type: 'GET',
@@ -181,17 +178,14 @@
                 }
             });
 
-            // Xử lý khi chọn bộ môn
             $('#departmentId').on('change', function() {
                 const facilityId = $('#facilityId').val();
                 const departmentId = $(this).val();
                 const majorSelect = $('#majorId');
 
-                // Reset select box chuyên ngành
                 majorSelect.html('<option value="">-- Chọn chuyên ngành --</option>').prop('disabled', true);
 
                 if (facilityId && departmentId) {
-                    // Lấy danh sách chuyên ngành theo cơ sở và bộ môn
                     $.ajax({
                         url: '/web/staff-majors/majors/' + facilityId + '/' + departmentId,
                         type: 'GET',

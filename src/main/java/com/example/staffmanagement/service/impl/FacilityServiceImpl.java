@@ -48,17 +48,14 @@ public class FacilityServiceImpl implements FacilityService {
 
     @Override
     public FacilityDTO createFacility(FacilityDTO facilityDTO) {
-        // Tạo một UUID mới nếu không được cung cấp
         if (facilityDTO.getId() == null) {
             facilityDTO.setId(UUID.randomUUID());
         }
 
-        // Kiểm tra xem mã cơ sở đã tồn tại chưa
         if (isFacilityCodeExists(facilityDTO.getCode())) {
             throw new IllegalArgumentException("Mã cơ sở đã tồn tại: " + facilityDTO.getCode());
         }
 
-        // Thiết lập trạng thái và thời gian
         facilityDTO.setStatus((byte) 1);
         long currentTime = Instant.now().toEpochMilli();
         facilityDTO.setCreatedDate(currentTime);
@@ -74,13 +71,11 @@ public class FacilityServiceImpl implements FacilityService {
         Facility existingFacility = facilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cơ sở", "id", id));
 
-        // Kiểm tra xem mã cơ sở đã tồn tại chưa (nếu đã thay đổi)
         if (!existingFacility.getCode().equals(facilityDTO.getCode())
                 && isFacilityCodeExists(facilityDTO.getCode())) {
             throw new IllegalArgumentException("Mã cơ sở đã tồn tại: " + facilityDTO.getCode());
         }
 
-        // Cập nhật thông tin
         existingFacility.setName(facilityDTO.getName());
         existingFacility.setCode(facilityDTO.getCode());
         existingFacility.setLastModifiedDate(Instant.now().toEpochMilli());
@@ -93,8 +88,6 @@ public class FacilityServiceImpl implements FacilityService {
     public void deleteFacility(UUID id) {
         Facility facility = facilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cơ sở", "id", id));
-
-        // Xóa thực sự thay vì cập nhật trạng thái
         facilityRepository.delete(facility);
     }
 
@@ -110,7 +103,6 @@ public class FacilityServiceImpl implements FacilityService {
         return facilityDTO;
     }
 
-    // Phương thức chuyển đổi từ DTO sang Entity
     private Facility convertToEntity(FacilityDTO facilityDTO) {
         Facility facility = new Facility();
         BeanUtils.copyProperties(facilityDTO, facility);

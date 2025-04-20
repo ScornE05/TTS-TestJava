@@ -21,15 +21,11 @@ public class ExcelUtils {
             "Mã nhân viên", "Họ và tên", "Email FE", "Email FPT", "Cơ sở", "Bộ môn", "Chuyên ngành", "Trạng thái"
     };
 
-    /**
-     * Tạo template Excel để import nhân viên
-     */
     public static ByteArrayInputStream staffToExcelTemplate() {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream out = new ByteArrayOutputStream();) {
             Sheet sheet = workbook.createSheet("Nhân viên");
 
-            // Tạo header style (đậm, xanh)
             Font headerFont = workbook.createFont();
             headerFont.setBold(true);
             headerFont.setColor(IndexedColors.WHITE.getIndex());
@@ -43,27 +39,22 @@ public class ExcelUtils {
             headerCellStyle.setBorderLeft(BorderStyle.THIN);
             headerCellStyle.setBorderRight(BorderStyle.THIN);
 
-            // Tạo cell style cho dữ liệu
             CellStyle dataCellStyle = workbook.createCellStyle();
             dataCellStyle.setBorderTop(BorderStyle.THIN);
             dataCellStyle.setBorderBottom(BorderStyle.THIN);
             dataCellStyle.setBorderLeft(BorderStyle.THIN);
             dataCellStyle.setBorderRight(BorderStyle.THIN);
 
-            // Tạo hàng header
             Row headerRow = sheet.createRow(0);
 
-            // Tạo các cột header
             for (int col = 0; col < STAFF_HEADER.length; col++) {
                 Cell cell = headerRow.createCell(col);
                 cell.setCellValue(STAFF_HEADER[col]);
                 cell.setCellStyle(headerCellStyle);
 
-                // Đặt width cho các cột
                 sheet.setColumnWidth(col, 6000);
             }
 
-            // Thêm 10 hàng trống mẫu
             for (int i = 0; i < 10; i++) {
                 Row row = sheet.createRow(i + 1);
                 for (int j = 0; j < STAFF_HEADER.length; j++) {
@@ -72,7 +63,6 @@ public class ExcelUtils {
                 }
             }
 
-            // Thêm sheet hướng dẫn
             Sheet guideSheet = workbook.createSheet("Hướng dẫn");
             Row guideRow1 = guideSheet.createRow(0);
             guideRow1.createCell(0).setCellValue("Hướng dẫn import dữ liệu:");
@@ -112,15 +102,11 @@ public class ExcelUtils {
         }
     }
 
-    /**
-     * Xuất danh sách nhân viên ra file Excel
-     */
     public static ByteArrayInputStream staffsToExcel(List<StaffDTO> staffs) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream out = new ByteArrayOutputStream();) {
             Sheet sheet = workbook.createSheet("Nhân viên");
 
-            // Tạo header style (đậm, xanh)
             Font headerFont = workbook.createFont();
             headerFont.setBold(true);
             headerFont.setColor(IndexedColors.WHITE.getIndex());
@@ -130,10 +116,8 @@ public class ExcelUtils {
             headerCellStyle.setFillForegroundColor(IndexedColors.BLUE.getIndex());
             headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            // Tạo hàng header
             Row headerRow = sheet.createRow(0);
 
-            // Tạo các cột header
             for (int col = 0; col < STAFF_HEADER.length; col++) {
                 Cell cell = headerRow.createCell(col);
                 cell.setCellValue(STAFF_HEADER[col]);
@@ -148,11 +132,9 @@ public class ExcelUtils {
                 row.createCell(1).setCellValue(staff.getName());
                 row.createCell(2).setCellValue(staff.getAccountFe());
                 row.createCell(3).setCellValue(staff.getAccountFpt());
-                // Các thông tin khác (cơ sở, bộ môn, chuyên ngành) cần lấy từ bảng liên kết
                 row.createCell(7).setCellValue(staff.getStatus() == 1 ? "Hoạt động" : "Không hoạt động");
             }
 
-            // Tự động điều chỉnh độ rộng cột
             for (int i = 0; i < STAFF_HEADER.length; i++) {
                 sheet.autoSizeColumn(i);
             }
@@ -164,9 +146,6 @@ public class ExcelUtils {
         }
     }
 
-    /**
-     * Đọc file Excel import nhân viên
-     */
     public static List<StaffDTO> parseExcelFile(InputStream is) {
         try {
             Workbook workbook = new XSSFWorkbook(is);
@@ -175,7 +154,6 @@ public class ExcelUtils {
 
             List<StaffDTO> staffs = new ArrayList<>();
 
-            // Bỏ qua hàng tiêu đề
             if (rows.hasNext()) {
                 rows.next();
             }
@@ -183,7 +161,6 @@ public class ExcelUtils {
             while (rows.hasNext()) {
                 Row currentRow = rows.next();
 
-                // Bỏ qua hàng trống
                 if (isRowEmpty(currentRow)) {
                     continue;
                 }
@@ -191,7 +168,6 @@ public class ExcelUtils {
                 StaffDTO staff = new StaffDTO();
                 staff.setId(UUID.randomUUID());
 
-                // Lấy dữ liệu từ các cột
                 Cell staffCodeCell = currentRow.getCell(0);
                 if (staffCodeCell != null) {
                     staff.setStaffCode(getCellValueAsString(staffCodeCell));
@@ -212,7 +188,6 @@ public class ExcelUtils {
                     staff.setAccountFpt(getCellValueAsString(fptEmailCell));
                 }
 
-                // Cơ sở, bộ môn, chuyên ngành ở cột 4, 5, 6 sẽ được xử lý riêng
 
                 Cell statusCell = currentRow.getCell(7);
                 if (statusCell != null) {
@@ -232,9 +207,6 @@ public class ExcelUtils {
         }
     }
 
-    /**
-     * Kiểm tra một hàng có trống không
-     */
     private static boolean isRowEmpty(Row row) {
         if (row == null) {
             return true;
@@ -253,9 +225,6 @@ public class ExcelUtils {
         return true;
     }
 
-    /**
-     * Lấy giá trị của cell dưới dạng String
-     */
     private static String getCellValueAsString(Cell cell) {
         if (cell == null) {
             return "";
@@ -267,7 +236,6 @@ public class ExcelUtils {
                 if (DateUtil.isCellDateFormatted(cell)) {
                     return cell.getDateCellValue().toString();
                 } else {
-                    // Chuyển số thành string và loại bỏ phần thập phân nếu là số nguyên
                     double value = cell.getNumericCellValue();
                     if (value == Math.floor(value)) {
                         return String.valueOf((int) value);
@@ -283,9 +251,6 @@ public class ExcelUtils {
         }
     }
 
-    /**
-     * Kiểm tra một file có phải là Excel file không
-     */
     public static boolean isExcelFile(MultipartFile file) {
         return file != null &&
                 (file.getContentType().equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") ||

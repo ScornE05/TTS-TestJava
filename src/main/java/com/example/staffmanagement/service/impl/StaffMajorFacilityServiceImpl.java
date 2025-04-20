@@ -73,30 +73,25 @@ public class StaffMajorFacilityServiceImpl implements StaffMajorFacilityService 
 
     @Override
     public StaffMajorFacilityDTO createStaffMajorFacility(StaffMajorFacilityDTO staffMajorFacilityDTO) {
-        // Tạo một UUID mới nếu không được cung cấp
         if (staffMajorFacilityDTO.getId() == null) {
             staffMajorFacilityDTO.setId(UUID.randomUUID());
         }
 
-        // Lấy các thực thể tham chiếu
         Staff staff = staffRepository.findById(staffMajorFacilityDTO.getStaffId())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên", "id", staffMajorFacilityDTO.getStaffId()));
 
         MajorFacility majorFacility = majorFacilityRepository.findById(staffMajorFacilityDTO.getMajorFacilityId())
                 .orElseThrow(() -> new ResourceNotFoundException("Ngành học - Cơ sở", "id", staffMajorFacilityDTO.getMajorFacilityId()));
 
-        // Kiểm tra xem cặp nhân viên-ngành học-cơ sở đã tồn tại chưa
         if (existsByStaffAndMajorFacility(staff.getId(), majorFacility.getId())) {
             throw new IllegalArgumentException("Cặp nhân viên-ngành học-cơ sở đã tồn tại");
         }
 
-        // Thiết lập trạng thái và thời gian
         staffMajorFacilityDTO.setStatus((byte) 1);
         long currentTime = Instant.now().toEpochMilli();
         staffMajorFacilityDTO.setCreatedDate(currentTime);
         staffMajorFacilityDTO.setLastModifiedDate(currentTime);
 
-        // Tạo mới thực thể
         StaffMajorFacility staffMajorFacility = new StaffMajorFacility();
         staffMajorFacility.setId(staffMajorFacilityDTO.getId());
         staffMajorFacility.setStatus(staffMajorFacilityDTO.getStatus());
@@ -114,14 +109,12 @@ public class StaffMajorFacilityServiceImpl implements StaffMajorFacilityService 
         StaffMajorFacility existingStaffMajorFacility = staffMajorFacilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên - Ngành học - Cơ sở", "id", id));
 
-        // Lấy các thực thể tham chiếu mới
         Staff staff = staffRepository.findById(staffMajorFacilityDTO.getStaffId())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên", "id", staffMajorFacilityDTO.getStaffId()));
 
         MajorFacility majorFacility = majorFacilityRepository.findById(staffMajorFacilityDTO.getMajorFacilityId())
                 .orElseThrow(() -> new ResourceNotFoundException("Ngành học - Cơ sở", "id", staffMajorFacilityDTO.getMajorFacilityId()));
 
-        // Kiểm tra xem cặp nhân viên-ngành học-cơ sở đã tồn tại chưa (nếu đã thay đổi)
         boolean isStaffChanged = !existingStaffMajorFacility.getStaff().getId().equals(staff.getId());
         boolean isMajorFacilityChanged = !existingStaffMajorFacility.getMajorFacility().getId().equals(majorFacility.getId());
 
@@ -130,7 +123,6 @@ public class StaffMajorFacilityServiceImpl implements StaffMajorFacilityService 
             throw new IllegalArgumentException("Cặp nhân viên-ngành học-cơ sở đã tồn tại");
         }
 
-        // Cập nhật thông tin
         existingStaffMajorFacility.setStaff(staff);
         existingStaffMajorFacility.setMajorFacility(majorFacility);
         existingStaffMajorFacility.setLastModifiedDate(Instant.now().toEpochMilli());
@@ -144,7 +136,6 @@ public class StaffMajorFacilityServiceImpl implements StaffMajorFacilityService 
         StaffMajorFacility staffMajorFacility = staffMajorFacilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên - Ngành học - Cơ sở", "id", id));
 
-        // Thay vì xóa, chỉ cần cập nhật trạng thái
         staffMajorFacility.setStatus((byte) 0);
         staffMajorFacility.setLastModifiedDate(Instant.now().toEpochMilli());
         staffMajorFacilityRepository.save(staffMajorFacility);
@@ -161,7 +152,6 @@ public class StaffMajorFacilityServiceImpl implements StaffMajorFacilityService 
         return staffMajorFacilityRepository.existsByStaffAndMajorFacility(staff, majorFacility);
     }
 
-    // Phương thức chuyển đổi từ Entity sang DTO
     private StaffMajorFacilityDTO convertToDTO(StaffMajorFacility staffMajorFacility) {
         StaffMajorFacilityDTO dto = new StaffMajorFacilityDTO();
         dto.setId(staffMajorFacility.getId());

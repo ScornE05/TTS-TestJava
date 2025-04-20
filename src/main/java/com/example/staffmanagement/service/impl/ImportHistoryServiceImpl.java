@@ -41,12 +41,11 @@ public class ImportHistoryServiceImpl implements ImportHistoryService {
 
     @Override
     public ImportHistoryDTO createImportHistory(ImportHistoryDTO importHistoryDTO) {
-        // Tạo một UUID mới nếu không được cung cấp
+
         if (importHistoryDTO.getId() == null) {
             importHistoryDTO.setId(UUID.randomUUID());
         }
 
-        // Thiết lập trạng thái và thời gian
         importHistoryDTO.setStatus((byte) 1);
         long currentTime = Instant.now().toEpochMilli();
         importHistoryDTO.setCreatedDate(currentTime);
@@ -65,14 +64,12 @@ public class ImportHistoryServiceImpl implements ImportHistoryService {
         importHistoryRepository.delete(history);
     }
 
-    // Phương thức chuyển đổi từ Entity sang DTO
     private ImportHistoryDTO convertToDTO(ImportHistory importHistory) {
         ImportHistoryDTO importHistoryDTO = new ImportHistoryDTO();
         BeanUtils.copyProperties(importHistory, importHistoryDTO);
         return importHistoryDTO;
     }
 
-    // Phương thức chuyển đổi từ DTO sang Entity
     private ImportHistory convertToEntity(ImportHistoryDTO importHistoryDTO) {
         ImportHistory importHistory = new ImportHistory();
         BeanUtils.copyProperties(importHistoryDTO, importHistory);

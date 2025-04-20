@@ -78,56 +78,41 @@ public class ExcelController {
             return "redirect:/web/excel/import-form";
         }
 
-        // Kiểm tra định dạng file
         if (!ExcelUtils.isExcelFile(file)) {
             redirectAttributes.addFlashAttribute("error", "Vui lòng chọn file Excel (.xlsx, .xls)");
             return "redirect:/web/excel/import-form";
         }
 
         try {
-            // Đọc dữ liệu từ file Excel
+
             List<StaffDTO> staffs = ExcelUtils.parseExcelFile(file.getInputStream());
 
-            // Ghi lại thông tin import
             ImportHistoryDTO importHistory = new ImportHistoryDTO();
             importHistory.setId(UUID.randomUUID());
             importHistory.setFileName(file.getOriginalFilename());
             importHistory.setTotalRecords(staffs.size());
-            importHistory.setImportedBy("Admin"); // Thay bằng thông tin người dùng đăng nhập
-
-            // Biến lưu kết quả import
+            importHistory.setImportedBy("Admin");
             List<String> successDetails = new ArrayList<>();
             List<String> failureDetails = new ArrayList<>();
             int successCount = 0;
             int failCount = 0;
-
-            // Thực hiện import từng nhân viên
             for (int i = 0; i < staffs.size(); i++) {
                 StaffDTO staff = staffs.get(i);
                 try {
-                    // Thực hiện validate và lưu nhân viên
                     staffService.createStaff(staff);
-
-                    // Lưu kết quả thành công
                     successCount++;
                     successDetails.add("Dòng " + (i + 2) + ": Import thành công nhân viên " + staff.getStaffCode() + " - " + staff.getName());
                 } catch (Exception e) {
-                    // Lưu kết quả thất bại
                     failCount++;
                     failureDetails.add("Dòng " + (i + 2) + ": Lỗi - " + e.getMessage());
                 }
             }
 
-            // Cập nhật thông tin import
             importHistory.setSuccessRecords(successCount);
             importHistory.setFailedRecords(failCount);
             importHistory.setSuccessDetails(String.join("\n", successDetails));
             importHistory.setFailureDetails(String.join("\n", failureDetails));
-
-            // Lưu lịch sử import
             importHistoryService.createImportHistory(importHistory);
-
-            // Thông báo kết quả
             redirectAttributes.addFlashAttribute("success",
                     "Import hoàn tất: " + successCount + " thành công, " + failCount + " thất bại");
 
